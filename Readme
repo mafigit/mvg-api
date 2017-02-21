@@ -1,0 +1,6 @@
+# MVG API Docker Container
+
+## Build
+docker build -t <name> .
+## Get
+http://localhost?search=Sendlinger%20Tor
