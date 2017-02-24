@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abfahrten</title>
+    <style>
+      .entry {
+        float:left;
+        margin-right: 1em;
+      }
+     h1 {
+       margin-left:auto;
+       margin-right:auto;
+       width: 200px;
+     }
+    </style>
+  </head>
+  <body>
+    <h1>Abfahrten</h2>
+    <div class='container'>
+      <div class='entry'>
+        <h3>Tram</h3>
+        <div id='tramlist'></div>
+      </div>
+      <div class='entry'>
+        <h3>Bus</h3>
+        <div id='buslist'></div>
+      </div>
+      <div class='entry'>
+        <h3>U-Bahn</h3>
+        <div id='ubahnlist'></div>
+      </div>
+    </div>
+    <script>
+
+      var addNode = function(text, element) {
+        var entry = document.createElement("p");
+        var text_node = document.createTextNode(text);
+        entry.appendChild(text_node);
+        element.appendChild(entry)
+      };
+
+      var makeRequest = function(url, callback) {
+        var request = new XMLHttpRequest();
+        request.open('GET', url, true);
+        request.onload = function() {
+          if (request.status >= 200 && request.status < 400) {
+            var resp = JSON.parse(request.responseText);
+            callback(resp);
+          } else {
+          }
+        };
+        request.onerror = function() {
+        };
+        request.send();
+      }
+
+      var print = function (list_id, data) {
+        var list = document.getElementById(list_id);
+        console.log(list)
+        while(list.firstChild) {
+          list.removeChild(list.firstChild);
+        }
+        for (var i = 0, len = data.length; i < len; i++) {
+          var entry = data[i];
+          var line = entry.line;
+          var dest = entry.destination;
+          var minutes = entry.minutes;
+          var text = line + ": " + dest + " in " + minutes + " Min";
+          addNode(text, list)
+        }
+        console.log('rerender')
+      };
+      var intervall = function intervall(url, id) {
+        makeRequest(url, function(data) {
+          print(id, data);
+          setTimeout(intervall.bind(this,url, id), 20000);
+        });
+      };
+      var lists = [
+        {id: 'tramlist', url: "https://mvg.inagile.org/?search=Paradiesstra%C3%9Fe"},
+        {id: 'buslist', url: "https://mvg.inagile.org/?search=Reitmorstra%C3%9Fe/Sammlung%20Schack"},
+        {id: 'ubahnlist', url: "https://mvg.inagile.org/?search=Lehel"}
+      ];
+      for (var i = 0, len = lists.length; i < len; i++) {
+        var list_item = lists[i];
+        var id = list_item.id;
+        var url = list_item.url;
+        intervall(url, id);
+      }
+    </script>
+  </body>
+</html>
