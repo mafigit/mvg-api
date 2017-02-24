@@ -10,15 +10,20 @@
         margin-right: 1em;
       }
      h1 {
-       margin-left:auto;
-       margin-right:auto;
-       width: 200px;
+       text-align: center;
+     }
+     #time {
+       text-align: center;
+     }
+     .container {
+       display: table;
      }
     </style>
   </head>
   <body>
-    <h1>Abfahrten</h2>
     <div class='container'>
+      <h1>Abfahrten</h2>
+      <h2 id='time'></h2>
       <div class='entry'>
         <h3>Tram</h3>
         <div id='tramlist'></div>
@@ -56,12 +61,24 @@
         request.send();
       }
 
+      var updateTime = function() {
+        var time = new Date();
+        var time_string =  ("0" + time.getHours()).slice(-2)   + ":" +
+          ("0" + time.getMinutes()).slice(-2)
+        var clock_el = document.getElementById('time');
+        while(clock_el.firstChild) {
+          clock_el.removeChild(clock_el.firstChild);
+        }
+        var text_node = document.createTextNode(time_string);
+        clock_el.appendChild(text_node);
+      };
+
       var print = function (list_id, data) {
         var list = document.getElementById(list_id);
-        console.log(list)
         while(list.firstChild) {
           list.removeChild(list.firstChild);
         }
+        updateTime();
         for (var i = 0, len = data.length; i < len; i++) {
           var entry = data[i];
           var line = entry.line;
@@ -70,7 +87,6 @@
           var text = line + ": " + dest + " in " + minutes + " Min";
           addNode(text, list)
         }
-        console.log('rerender')
       };
       var intervall = function intervall(url, id) {
         makeRequest(url, function(data) {
